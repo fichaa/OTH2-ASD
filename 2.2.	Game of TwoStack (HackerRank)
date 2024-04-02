@@ -1,0 +1,135 @@
+#include <assert.h> //Header file untuk menambahkan fungsi assertion.
+#include <stdbool.h> // Header file untuk menggunakan tipe data boolean (true dan false).
+#include <stddef.h> //Header file untuk mendefinisikan beberapa tipe dan konstanta dasar.
+#include <stdint.h> //Header file untuk mendefinisikan tipe data dengan lebar bit tertentu.
+#include <stdio.h> //Header file untuk fungsi input-output standar.
+#include <stdlib.h> // Header file untuk fungsi-fungsi umum, seperti alokasi memori dinamis.
+
+// Struktur data untuk merepresentasikan stack
+typedef struct {
+    int top;        // Indeks atas stack
+    int capacity;   // Kapasitas maksimum stack
+    int* array;     // Array untuk menyimpan elemen-elemen stack
+} Stack;
+
+// Fungsi untuk membuat stack baru dengan kapasitas tertentu
+Stack* createStack(int capacity) {
+    // Mengalokasikan memori untuk stack
+    Stack* stack = (Stack*)malloc(sizeof(Stack));
+    stack->capacity = capacity;
+    stack->top = -1;    // Stack awalnya kosong
+    stack->array = (int*)malloc(stack->capacity * sizeof(int));
+    return stack;
+}
+
+// Fungsi untuk memeriksa apakah stack kosong
+bool isEmpty(Stack* stack) {
+    return stack->top == -1;
+}
+
+// Fungsi untuk memeriksa apakah stack penuh
+bool isFull(Stack* stack) {
+    return stack->top == stack->capacity - 1;
+}
+
+// Fungsi untuk menambahkan elemen ke dalam stack
+void push(Stack* stack, int item) {
+    if (isFull(stack)) return; // Jika stack penuh, tidak melakukan apa-apa
+    stack->array[++stack->top] = item; // Menambahkan elemen ke dalam stack
+}
+
+// Fungsi untuk menghapus dan mengembalikan elemen teratas dari stack
+int pop(Stack* stack) {
+    if (isEmpty(stack)) return -1; // Jika stack kosong, mengembalikan nilai -1
+    return stack->array[stack->top--]; // Menghapus dan mengembalikan elemen teratas dari stack
+}
+
+// Fungsi untuk melihat elemen teratas dari stack tanpa menghapusnya
+int peek(Stack* stack) {
+    if (isEmpty(stack)) return -1; // Jika stack kosong, mengembalikan nilai -1
+    return stack->array[stack->top]; // Mengembalikan elemen teratas dari stack
+}
+
+// Fungsi untuk menghapus stack dan membebaskan memori yang digunakan
+void deleteStack(Stack* stack) {
+    free(stack->array); // Membebaskan memori array
+    free(stack); // Membebaskan memori stack
+}
+
+// Fungsi untuk menyelesaikan masalah dua stack dengan batasan jumlah maksimum
+int twoStacks(int maxSum, int a_count, int* a, int b_count, int* b) {
+    int sum = 0, countA = 0, countB = 0, moves = 0; // Inisialisasi variabel-variabel
+
+    // Membuat stack untuk kedua tumpukan
+    Stack* stackA = createStack(a_count);
+    Stack* stackB = createStack(b_count);
+
+    // Memasukkan elemen-elemen dari tumpukan A ke dalam stackA hingga jumlahnya tidak melebihi maxSum
+    while (countA < a_count && sum + a[countA] <= maxSum) { 
+        sum += a[countA]; 
+        push(stackA, a[countA]); 
+        countA++;
+    }
+
+    // Memasukkan elemen-elemen dari tumpukan B ke dalam stackB jika jumlah mereka bersamaan dengan stackA tidak melebihi maxSum
+    while (countB < b_count && !isFull(stackA)) {
+        sum += b[countB];
+        push(stackB, b[countB]);
+        countB++;
+        while (sum > maxSum && !isEmpty(stackA)) {
+            sum -= pop(stackA);
+            countA--;
+        }
+        if (sum <= maxSum && countA + countB > moves) moves = countA + countB;
+    }
+
+    // Menghapus elemen dari stackB dan menambahkan ke stackA untuk memaksimalkan jumlah elemen pada keduanya
+    while (!isEmpty(stackB)) {
+        sum += pop(stackB);
+        countB--;//Mengurangi jumlah elemen dalam stackB karena satu elemen telah dihapus.
+        while (sum > maxSum && !isEmpty(stackA)) {
+            sum -= pop(stackA);
+            countA--;//Mengurangi jumlah elemen dalam stackA karena satu elemen telah dihapus.
+        }
+        if (sum <= maxSum && countA + countB > moves) moves = countA + countB;
+    }
+
+    // Menghapus kedua stack untuk membebaskan memori yang digunakan
+    deleteStack(stackA);
+    deleteStack(stackB);
+
+    return moves; // Mengembalikan jumlah maksimum langkah yang mungkin
+}
+
+// Fungsi utama program
+int main() {
+    int g;
+    scanf("%d", &g); // Meminta input jumlah kasus
+
+    for (int g_itr = 0; g_itr < g; g_itr++) { // Loop untuk setiap kasus
+        int n, m, maxSum;
+        scanf("%d %d %d", &n, &m, &maxSum); // Meminta input jumlah elemen dan batasan jumlah maksimum
+
+        // Mengalokasikan memori dan mendapatkan input untuk tumpukan A
+        int* a = malloc(n * sizeof(int));
+        for (int i = 0; i < n; i++) {
+            scanf("%d", &a[i]);
+        }
+
+        // Mengalokasikan memori dan mendapatkan input untuk tumpukan B
+        int* b = malloc(m * sizeof(int));
+        for (int i = 0; i < m; i++) {
+            scanf("%d", &b[i]);
+        }
+
+        // Memanggil fungsi twoStacks untuk menyelesaikan masalah dan mencetak hasilnya
+        int result = twoStacks(maxSum, n, a, m, b);
+        printf("%d\n", result);
+
+        // Membebaskan memori yang digunakan untuk array a dan b
+        free(a);
+        free(b);
+    }
+
+    return 0;
+}
