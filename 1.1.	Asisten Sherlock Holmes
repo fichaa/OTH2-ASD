@@ -1,0 +1,68 @@
+#include <stdio.h>
+
+
+// Mendefinisikan struct Batu untuk menyimpan alphabet  
+struct Batu {
+    char alphabet;  // Menyimpan huruf pada batu
+    struct Batu *link;  // Pointer ke Batu berikutnya dalam urutan
+};
+
+int main() {
+    // Inisialisasi batu sesuai dengan petunjuk
+    struct Batu l1, l2, l3, l4, l5, l6, l7, l8, l9;
+
+    l1.link = NULL;
+    l1.alphabet = 'F';
+
+    l2.link = NULL;
+    l2.alphabet = 'M';
+
+    l3.link = NULL;
+    l3.alphabet = 'A';
+
+    l4.link = NULL;
+    l4.alphabet = 'I';
+
+    l5.link = NULL;
+    l5.alphabet = 'K';
+
+    l6.link = NULL;
+    l6.alphabet = 'T';
+
+    l7.link = NULL;
+    l7.alphabet = 'N';
+
+    l8.link = NULL;
+    l8.alphabet = 'O';
+
+    l9.link = NULL;
+    l9.alphabet = 'R';
+
+
+    // Mengatur koneksi antar batu sesuai dengan urutan yang diberikan
+    l7.link = &l1;
+    l1.link = &l8;
+    l8.link = &l2;
+    l2.link = &l5;
+    l5.link = &l3;
+    l3.link = &l6;
+    l6.link = &l9;
+    l9.link = &l4;
+    l4.link = &l7;
+
+
+    // Mengakses huruf pada batu menggunakan l3 sebagai titik awal
+    printf("%c", l3.link->link->link->alphabet); // Output: "I"
+    printf("%c", l3.link->link->link->link->alphabet); // Output: "N"
+    printf("%c", l3.link->link->link->link->link->alphabet); // Output: "F"
+    printf("%c", l3.link->link->link->link->link->link->alphabet); // Output: "O"
+    printf("%c", l3.link->link->alphabet); // Output: "R"
+    printf("%c", l3.link->link->link->link->link->link->link->alphabet); // Output: "M"
+    printf("%c", l3.alphabet); // Output: "A"
+    printf("%c", l3.link->alphabet); // Output: "T"
+    printf("%c", l3.link->link->link->alphabet); // Output: "I"
+    printf("%c", l3.link->link->link->link->link->link->link->link->alphabet); // Output: "K"
+    printf("%c", l3.alphabet); // Output: "A"
+
+    return 0;
+}
